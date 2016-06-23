@@ -15,13 +15,12 @@ public class GameController : MonoBehaviour {
 	public static GameController instance; //Instance
 
 	//Ads
-	public Text debugText;
-	public Text debugText2;
 	public int i;
 	public int adsShow;
 	public string gameId; // Set this value from the inspector.
 	public bool enableTestMode = true;
 	public bool adsShowing = true;
+	public UnityAdsExample ads;
 
 	//Level
 	public GameObject enemyPrefab;
@@ -31,7 +30,7 @@ public class GameController : MonoBehaviour {
 	void Awake(){
 		instance = this;
 		difficulty = 0;
-		//CheckPlayTime ();
+		CheckPlayTime ();
 		SpawnEnemy ();
 	}
 
@@ -63,15 +62,12 @@ public class GameController : MonoBehaviour {
 			i=1;
 		}
 
-		debugText.text = "Play Time " + i;
-
 		i = PlayerPrefs.GetInt ("PlayTime");
 
 		i++;
 
 		PlayerPrefs.SetInt("PlayTime",i);
 
-		debugText.text = "Play Time " + i;
 	}
 
 	public void addScore(){
@@ -86,16 +82,16 @@ public class GameController : MonoBehaviour {
 		gameoverScoreText.text = score.ToString(); //Set score to gameoverScoreText
 		gameoverHighscoreText.text = PlayerPrefs.GetInt ("highscore", 0).ToString(); //Set high score to gameoverHighscoreText
 		gameoverGUI.gameObject.SetActive(true); //Show gameover's GUI
-		ingameGUI.gameObject.SetActive(true); //Hide ingame's GUI
+		ingameGUI.gameObject.SetActive(false); //Hide ingame's GUI
 
 		//ads here
 		//interstitial.ShowInterstitial ();
 		adsShow = PlayerPrefs.GetInt ("PlayTime");
-		debugText2.text = "Play Time " + adsShow;
 		if (adsShow > 5 && adsShowing) 
 		{
 			PlayerPrefs.SetInt("PlayTime",1);
 			adsShowing = false;
+			ads.ShowAd ();
 			return;
 			// Wait until Unity Ads is initialized,
 			//  and the default ad placement is ready.

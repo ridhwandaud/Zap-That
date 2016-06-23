@@ -22,11 +22,13 @@ public class PlayerController: MonoBehaviour
 	//boolean
 	bool isMoving;
 	bool isHolding;
+	public bool isDead;
 	public bool usingHold;
 	public bool usingTouchPosition;
 	public bool usingMousePosition;
 	public bool usingSpaceBar;
 	public bool usingDetectUI;
+	public bool isReadyToNextShoot;
 
 	private int fingerId= -1;
 
@@ -36,6 +38,7 @@ public class PlayerController: MonoBehaviour
 		if (Application.isMobilePlatform) {
 			fingerId = 0; //for mobile and unity
 		}
+		isReadyToNextShoot = true;
 		rb2D = GetComponent<Rigidbody2D> ();
 		audioSource = GetComponent<AudioSource> ();
 
@@ -47,14 +50,19 @@ public class PlayerController: MonoBehaviour
 
 	void Update () 
 	{
+		if (GameObject.FindGameObjectWithTag ("Enemy") != null) {
+			isReadyToNextShoot = true;
+		}
+
 		//Input for Android and IOS
-		if (usingHold)
+		if (usingHold && !isDead && isReadyToNextShoot && Time.timeScale != 0)
 		{
 			TouchAndHold ();
 		}
-			
+
+
 		//Input for PC
-		if (usingSpaceBar) 
+		if (usingSpaceBar && !isDead && isReadyToNextShoot && Time.timeScale != 0) 
 		{
 			SpaceBar ();
 		}
@@ -68,13 +76,8 @@ public class PlayerController: MonoBehaviour
 			Touch touch = Input.GetTouch(i);
 			int pointerID = touch.fingerId;
 
-			if(usingDetectUI)
-			{
-				if(EventSystem.current.IsPointerOverGameObject(pointerID))
-				{
-					// touch on ui
-					return;
-				}
+			if(EventSystem.current.IsPointerOverGameObject(fingerId)){
+				return; //Not Change Direction
 			}
 
 			if (touch.phase == TouchPhase.Began ) //Hold
@@ -127,6 +130,7 @@ public class PlayerController: MonoBehaviour
 
 	void Shoot()
 	{
+		isReadyToNextShoot = false;
 		spriteAnimator.SetBool("Aim",false);
 		GameObject bullet = (GameObject)Instantiate(zap,transform.position, Quaternion.identity);
 		bullet.transform.rotation = rotateChild.rotation;// this is to follow rotating child 
